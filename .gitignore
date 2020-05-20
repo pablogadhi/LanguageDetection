@@ -133,6 +133,8 @@ data/
 *.pt
 *.txt
 *.joblib
+!models/*.pt
+!models/*.joblib
 
 # vscode
 .vscode/

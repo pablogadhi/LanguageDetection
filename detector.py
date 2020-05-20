@@ -25,10 +25,10 @@ def bleu_dist(translations):
 
 
 class Detector:
-    def __init__(self, load_from="classifier_model.joblib"):
+    def __init__(self, load_from="models/classifier_model.joblib"):
 
         try:
-            self.classifier = load("classifier_model.joblib")
+            self.classifier = load(load_from)
         except:
             print("Model not found! Train a new model!")
             self.classifier = None
@@ -79,7 +79,7 @@ class Detector:
 
         self.classifier = svm.SVC(probability=True)
         self.classifier.fit(X, y)
-        dump(self.classifier, "classifier_model.joblib")
+        dump(self.classifier, "models/classifier_model.joblib")
 
     def predict(self, data):
         es_back, de_back = self.backtranslations(data)

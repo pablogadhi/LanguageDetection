@@ -19,7 +19,7 @@ class Translator:
         parser.add('--gpu', '-gpu', type=int,
                    default=gpu, help="Device to run on")
         parser.add('--model', '-model', dest='models', metavar='MODEL',
-                   nargs='+', type=str, default=["{}-model_step_20000.pt".format(lang_pair)])
+                   nargs='+', type=str, default=["models/{}-model_step_20000.pt".format(lang_pair)])
         parser.add('--output', '-output', type=str,
                    default="pred.txt")
         parser.add('--src', '-src', required=False,
