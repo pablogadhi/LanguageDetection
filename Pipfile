@@ -12,6 +12,7 @@ nltk = "*"
 jupyter = "*"
 pandas = "*"
 scikit-learn = "*"
+dash = "*"
 
 [dev-packages]
 autopep8 = "*"

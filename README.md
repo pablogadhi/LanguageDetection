@@ -19,3 +19,4 @@ Ejecutar el programa de pruebas:
 ```console
 python real_time_test.py
 ```
+El programa levantará un servidor en la dirección: [http://127.0.0.1:8050/](http://127.0.0.1:8050/)

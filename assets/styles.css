@@ -1,0 +1,37 @@
+.app-container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.md-title {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-div {
+    margin-top: 2em;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+}
+
+.output-div-container {
+    width: 100%;
+    align-self: flex-start;
+}
+
+.output-div {
+    align-items: flex-start;
+    margin-top: 2em;
+    display: flex;
+    flex-direction: column;
+}
+
+.detect-btn {
+    align-self: flex-end;
+    margin-top: 2em;
+}
