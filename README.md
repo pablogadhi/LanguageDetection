@@ -15,7 +15,7 @@ Cambiar al ambiente virtual utilizando:
 pipenv shell
 ```
 
-Ejecutar el programa de pruebas>
+Ejecutar el programa de pruebas:
 ```console
 python real_time_test.py
 ```
