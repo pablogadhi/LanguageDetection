@@ -5,12 +5,13 @@ name = "pypi"
 
 [packages]
 torch = "*"
-opennmt-py = "*"
+OpenNMT-py = "*"
 google-cloud-translate = "==2.0.1"
 googletrans = "*"
 nltk = "*"
 jupyter = "*"
 pandas = "*"
+scikit-learn = "*"
 
 [dev-packages]
 autopep8 = "*"

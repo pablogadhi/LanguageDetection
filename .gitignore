@@ -130,6 +130,8 @@ dmypy.json
 
 # Training data
 data/
+*.pt
+*.txt
 
 # vscode
 .vscode/
