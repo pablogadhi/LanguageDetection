@@ -21,7 +21,7 @@ then
     save_at=10000
 fi
 
-onmt_train -data "$1" -save_model "$2" \
+onmt_train -data $1 -save_model $2 \
         -layers 6 -rnn_size 512 -word_vec_size 512 -transformer_ff 2048 -heads 8  \
         -encoder_type transformer -decoder_type transformer -position_encoding \
         -train_steps $steps  -max_generator_batches 2 -dropout 0.1 \
