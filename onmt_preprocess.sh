@@ -2,7 +2,7 @@
 
 data_dir="./data/*"
 
-lang_pair=$(echo $1 | cut -d "/" -f 3)
+lang_pair=$1
 lang_0=$(echo $lang_pair | cut -d "-" -f 1)
 lang_1=$(echo $lang_pair | cut -d "-" -f 2)
 
@@ -25,6 +25,6 @@ onmt_preprocess -train_src "${subdir}/${lang_file_0}" \
     -valid_src "${subdir}/${lang_val_0}" \
     -valid_tgt "${subdir}/${lang_val_1}" \
     -save_data "${subdir}/${lang_0}-${lang_1}" \
-    -src_vocab_size 30000 \
-    -tgt_vocab_size 30000 \
+    -src_vocab_size 40000 \
+    -tgt_vocab_size 40000 \
     -overwrite
