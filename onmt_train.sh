@@ -6,17 +6,17 @@ steps=$3
 batch_size=$4
 save_at=$5
 
-if [ -n $steps ]
+if [ -z "$steps" ]
 then
     steps=200000
 fi
 
-if [ -n $batch_size ]
+if [ -z "$batch_size" ]
 then
     batch_size=4096
 fi
 
-if [ -n $save_at ]
+if [ -z "$save_at" ]
 then
     save_at=10000
 fi
