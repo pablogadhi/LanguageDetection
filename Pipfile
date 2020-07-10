@@ -13,6 +13,7 @@ jupyter = "*"
 pandas = "*"
 scikit-learn = "*"
 dash = "*"
+tqdm = "*"
 
 [dev-packages]
 autopep8 = "*"
