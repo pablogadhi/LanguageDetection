@@ -130,11 +130,10 @@ dmypy.json
 
 # Data and test models
 data/
+models/
 *.pt
 *.txt
 *.joblib
-!models/*.pt
-!models/*.joblib
 
 # vscode
 .vscode/

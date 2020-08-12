@@ -9,7 +9,7 @@ if __name__ == "__main__":
                           help='source file', required=True)
     a_parser.add_argument('-o', action='store', type=str,
                           help='output file', required=True)
-    a_parser.add_argument('-tl', action='store', type=str,
+    a_parser.add_argument('-tgt', action='store', type=str,
                           help='target language', required=True)
     args = a_parser.parse_args()
 
@@ -17,7 +17,7 @@ if __name__ == "__main__":
         sentences = file.read().split("\n")
 
         translator = Translator()
-        translations = translator.translate(sentences, args.tl)
+        translations = translator.translate(sentences, args.tgt)
 
         out_file = open(args.o, "w")
         out_file.write("\n".join(map(lambda x: x.text, translations)))

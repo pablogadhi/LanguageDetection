@@ -1,0 +1,25 @@
+{
+    "models_root": "./models",
+    "models": [
+        {
+            "id": 0,
+            "model": "multi_lang_final",
+            "ct2_model": "multi_lang_final",
+            "timeout": -1,
+            "on_timeout": "to_cpu",
+            "load": true,
+            "opt": {
+                "gpu": 0,
+                "beam_size": 5
+            },
+            "tokenizer": {
+                "type": "pyonmttok",
+                "model": "./models/bpe_model",
+                "params": {
+                    "joiner_annotate": true
+                },
+                "mode": "conservative"
+            }
+        }
+    ]
+}
