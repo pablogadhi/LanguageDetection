@@ -1,94 +1,64 @@
 import numpy as np
-from translator import Translator
+from torch import nn
+from torch import optim
+from torch.utils.data import Dataset, DataLoader
+from pyonmttok import Tokenizer
 from nltk.translate.bleu_score import sentence_bleu
-from nltk import word_tokenize
-from sklearn import svm
-from sklearn.utils import shuffle
-from sklearn.preprocessing import LabelEncoder
-from joblib import dump, load
-
-LANG_PREFIXES = ['en', 'es', 'de']
 
 
-def remove_dim(translation):
-    return list(map(lambda x: x[0], translation))
+class BLEUDataset(Dataset):
+    def __init__(self, pd_dataframe):
+        self.dataframe = pd_dataframe
+
+    def __len__(self):
+        return len(self.dataframe.index)
 
 
-def bleu_dist(translations):
-    t_translations = list(map(lambda x: word_tokenize(x), translations))
+class Classifier(nn.Module):
+    def __init__(self, dropout=0.5):
+        super(Classifier, self).__init__()
+        self.hidden = nn.Linear(17, 9, bias=True)
+        self.relu = nn.ReLU()
+        self.out = nn.Linear(9, 4, bias=True)
+        self.softmax = nn.Softmax(4)
+        self.dropout = nn.Dropout(p=dropout)
 
-    bleu = []
-    for i in range(0, len(translations) - 1):
-        bleu.append(sentence_bleu([t_translations[i]], t_translations[i+1]))
+    def forward(self, x):
+        x = self.relu(self.hidden(x))
+        x = self.dropout(x)
+        x = self.softmax(self.out(x))
+        return x
 
-    return bleu
+
+def train_classifier(classifier, dataloader):
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(classifier.parameters(), lr=0.001, momentum=0.9)
+
+    for epoch in range(2):
+        running_loss = 0.0
+        for i, data in enumerate(dataloader, 0):
+            inputs, labels = data
+            optimizer.zero_grad()
+
+            outputs = classifier(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item()
+            if i % 2000 == 1999:
+                print('[%d, %5d] loss: %.3f' %
+                      (epoch + 1, i + 1, running_loss / 2000))
+                running_loss = 0.0
+
+    print('Finished Training')
 
 
 class Detector:
-    def __init__(self, load_from="models/classifier_model.joblib"):
+    def __init__(self):
+        self.tokenizer = Tokenizer('conservative')
+        self.classifier = self.load_classifier()
 
-        try:
-            self.classifier = load(load_from)
-        except:
-            print("Model not found! Train a new model!")
-            self.classifier = None
-
-    def backtranslations(self, train_data, iter_num=3):
-        es_translations = []
-        de_translations = []
-        en_translations = [[train_data, train_data]]
-        translator = {"en-es": Translator("en-es"), "es-en": Translator(
-            "es-en"), "en-de": Translator("en-de"), "de-en": Translator("de-en")}
-        for i in range(0, iter_num):
-            es_sentences = remove_dim(
-                translator["en-es"].translate(en_translations[i][0])[1])
-            es_translations.append(es_sentences)
-            de_sentences = remove_dim(
-                translator["en-de"].translate(en_translations[i][1])[1])
-            de_translations.append(de_sentences)
-
-            es_en_back = remove_dim(
-                translator["es-en"].translate(es_sentences)[1])
-            de_en_back = remove_dim(
-                translator["de-en"].translate(de_sentences)[1])
-            en_translations.append([es_en_back, de_en_back])
-
-        return np.array(es_translations, dtype=object).T, np.array(de_translations, dtype=object).T
-
-    def bleu_from_backtrans(self, back_trans_list):
-        # TODO make single numpy operation
-        res = np.apply_along_axis(bleu_dist, 1, back_trans_list[0])
-        for i in range(1, len(back_trans_list)):
-            lang_bleu = np.apply_along_axis(bleu_dist, 1, back_trans_list[i])
-            res = np.hstack((res, lang_bleu))
-        return res
-
-    def train(self, train_file, validation_data):
-        train = open(train_file, "r").read().split("\n")
-        train = list(map(lambda x: x.encode(), train))
-
-        es_back, de_back = self.backtranslations(train)
-        x_data = self.bleu_from_backtrans([es_back, de_back])
-
-        y_data = open(validation_data, "r").read().split("\n")
-        l_encoder = LabelEncoder()
-        l_encoder.fit(LANG_PREFIXES)
-        y_data = l_encoder.transform(y_data)
-
-        X, y = shuffle(x_data, y_data)
-
-        self.classifier = svm.SVC(probability=True)
-        self.classifier.fit(X, y)
-        dump(self.classifier, "models/classifier_model.joblib")
-
-    def predict(self, data):
-        es_back, de_back = self.backtranslations(data)
-        real_x = self.bleu_from_backtrans([es_back, de_back])
-        return self.classifier.predict_proba(real_x)
-
-
-if __name__ == "__main__":
-    detector = Detector()
-    test = ["Occasionally he would stop in the shade of a poplar tree and raise his head as if he were venting that humid and imperceptible air for men, but that the delicate smell of the canine race indicates the source or the coveted puddle where to quench his thirst."]
-    print(detector.predict(test))
-    # detector.train("data/svm_train.txt", "data/svm_lang.txt")
+    def load_classifier(self):
+        # TODO Load a trained model
+        return Classifier()
