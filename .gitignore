@@ -137,3 +137,6 @@ models/
 
 # vscode
 .vscode/
+
+# allow requirements
+!requirements.txt
