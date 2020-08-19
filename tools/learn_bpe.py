@@ -15,7 +15,7 @@ def learn_bpe(tokenizer, src_path, out_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Scrip para entrenar un modelo de BPE')
+        description='This script trains a BPE model')
 
     parser.add_argument('--source', action='store',
                         type=str, help='source directory or file', required=True)
