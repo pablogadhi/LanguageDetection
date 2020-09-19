@@ -142,11 +142,11 @@ def write_aligned_corpus(aligned_corpus, data_dir, val_test_size):
 
 
 if __name__ == "__main__":
-    data_dir = "./data/"
-    sentence_num = 510000
-    process_num = 6
+    data_dir = "./data/original/"
+    sentence_num = 1000000
+    process_num = 8
     log_rate = 1000
 
     corpus = align_corpus(load_corpus(data_dir),
                           sentence_num, process_num, log_rate)
-    write_aligned_corpus(corpus, data_dir, 5000)
+    write_aligned_corpus(corpus, data_dir, 80000)

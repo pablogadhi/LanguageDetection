@@ -8,4 +8,4 @@ RUN pip3 install pyonmttok waitress Flask
 
 EXPOSE 8080
 ENTRYPOINT ["python3", "./server/server.py"]
-CMD ["--beam_size", "5", "--batch_size", "60"]
+CMD ["--beam_size", "4", "--batch_size", "50"]

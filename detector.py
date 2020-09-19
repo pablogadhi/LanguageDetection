@@ -29,17 +29,24 @@ class BLEUDataset(Dataset):
 class Classifier(nn.Module):
     def __init__(self, dropout=0.5):
         super(Classifier, self).__init__()
-        self.hidden0 = nn.Linear(13, 18, bias=True)
-        self.hidden1 = nn.Linear(18, 9, bias=True)
-        self.out = nn.Linear(9, 4, bias=True)
-        self.relu = nn.ReLU()
+        self.hidden0 = nn.Linear(10, 1024, bias=True)
+        self.hidden1 = nn.Linear(1024, 512, bias=True)
+        self.hidden2 = nn.Linear(512, 128, bias=True)
+        self.hidden3 = nn.Linear(128, 32, bias=True)
+        self.hidden4 = nn.Linear(32, 8, bias=True)
+        self.out = nn.Linear(8, 4, bias=True)
+        self.l_relu = nn.LeakyReLU()
         self.softmax = nn.Softmax(dim=1)
         self.dropout = nn.Dropout(p=dropout)
 
     def forward(self, x):
-        x = self.relu(self.hidden0(x))
-        x = self.dropout(x)
-        x = self.relu(self.hidden1(x))
+        x = self.l_relu(self.hidden0(x))
+        # x = self.dropout(x)
+        x = self.l_relu(self.hidden1(x))
+        # x = self.dropout(x)
+        x = self.l_relu(self.hidden2(x))
+        x = self.l_relu(self.hidden3(x))
+        x = self.l_relu(self.hidden4(x))
         x = self.dropout(x)
         x = self.softmax(self.out(x))
         return x
@@ -48,7 +55,7 @@ class Classifier(nn.Module):
 def train_classifier(classifier, dataloader, epochs, log_rate, device='cpu'):
     classifier.train()
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(classifier.parameters(), lr=0.01, momentum=0.9)
+    optimizer = optim.SGD(classifier.parameters(), lr=0.1, momentum=0.9)
 
     for epoch in range(epochs):
         running_loss = 0.0
