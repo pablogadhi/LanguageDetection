@@ -134,6 +134,7 @@ models/
 *.pt
 *.txt
 *.joblib
+.google_trans_checkpoint
 
 # vscode
 .vscode/
