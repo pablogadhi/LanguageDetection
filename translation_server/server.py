@@ -26,9 +26,9 @@ if __name__ == "__main__":
         description='Translation server that handles requests to translate sentences between english, spanish, french and german.')
 
     parser.add_argument('--beam_size', action='store',
-                        type=int, help='size of the decoding beam', required=False, default=2)
+                        type=int, help='size of the decoding beam', required=False, default=4)
     parser.add_argument('--batch_size', action='store',
-                        type=int, help='maximum batch size for the translation process', required=False, default=30)
+                        type=int, help='maximum batch size for the translation process', required=False, default=50)
     args = parser.parse_args()
     app = start_app(args.beam_size, args.batch_size)
     waitress.serve(app, host='0.0.0.0', port=8080)

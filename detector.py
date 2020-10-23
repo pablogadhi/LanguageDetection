@@ -55,7 +55,7 @@ class Classifier(nn.Module):
 def train_classifier(classifier, dataloader, epochs, log_rate, device='cpu'):
     classifier.train()
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(classifier.parameters(), lr=0.1, momentum=0.9)
+    optimizer = optim.SGD(classifier.parameters(), lr=0.01, momentum=0.9)
 
     for epoch in range(epochs):
         running_loss = 0.0
