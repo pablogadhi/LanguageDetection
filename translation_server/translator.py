@@ -50,7 +50,7 @@ class Translator:
     def load_translator(self, inter_threads, intra_threads):
         import ctranslate2
         translator = ctranslate2.Translator(
-            './models/multi_lang_v2',
+            './models/multi_lang_v3',
             device='auto',
             device_index=0,
             inter_threads=inter_threads,

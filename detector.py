@@ -1,117 +1,87 @@
-import re
-import time
-import numpy as np
 import torch
-from torch import nn
-from torch import optim
-from torch.utils.data import Dataset, DataLoader
+import requests
+import numpy as np
+from nn_classifier import Classifier
 from pyonmttok import Tokenizer
-from nltk.translate.bleu_score import sentence_bleu
+from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
+from joblib import load
+
+LANG_POOL = ['en', 'es', 'fr', 'de']
 
 
-class BLEUDataset(Dataset):
-    def __init__(self, pd_dataframe):
-        self.dataframe = pd_dataframe
-
-    def __len__(self):
-        return len(self.dataframe.index)
-
-    def __getitem__(self, idx):
-        inputs = self.dataframe.iloc[idx,
-                                     self.dataframe.columns != 'origin'].values
-        label = int(self.dataframe.iloc[idx]['origin'])
-        return inputs, label
-
-    def get_all_labels(self):
-        return [int(x['origin']) for _, x in self.dataframe.iterrows()]
-
-
-class Classifier(nn.Module):
-    def __init__(self, dropout=0.5):
-        super(Classifier, self).__init__()
-        self.hidden0 = nn.Linear(10, 1024, bias=True)
-        self.hidden1 = nn.Linear(1024, 512, bias=True)
-        self.hidden2 = nn.Linear(512, 128, bias=True)
-        self.hidden3 = nn.Linear(128, 32, bias=True)
-        self.hidden4 = nn.Linear(32, 8, bias=True)
-        self.out = nn.Linear(8, 4, bias=True)
-        self.l_relu = nn.LeakyReLU()
-        self.softmax = nn.Softmax(dim=1)
-        self.dropout = nn.Dropout(p=dropout)
-
-    def forward(self, x):
-        x = self.l_relu(self.hidden0(x))
-        # x = self.dropout(x)
-        x = self.l_relu(self.hidden1(x))
-        # x = self.dropout(x)
-        x = self.l_relu(self.hidden2(x))
-        x = self.l_relu(self.hidden3(x))
-        x = self.l_relu(self.hidden4(x))
-        x = self.dropout(x)
-        x = self.softmax(self.out(x))
-        return x
-
-
-def train_classifier(classifier, dataloader, epochs, log_rate, device='cpu'):
-    classifier.train()
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(classifier.parameters(), lr=0.01, momentum=0.9)
-
-    for epoch in range(epochs):
-        running_loss = 0.0
-        start = time.time()
-        total, correct = (0, 0)
-        for i, data in enumerate(dataloader, 0):
-            inputs, labels = data[0].to(device), data[1].to(device)
-            optimizer.zero_grad()
-
-            outputs = classifier(inputs.float())
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
-
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-
-            running_loss += loss.item()
-            if i % log_rate == log_rate - 1:
-                print('Epoch {}, iter {}: {:.4f} loss | {:.4f}% accuracy'.format(
-                    epoch, i + 1, running_loss / log_rate, correct / total * 100))
-                running_loss = 0.0
-
-        end = time.time()
-        print('Epoch {} took: {:.3f}s'.format(epoch, end - start))
-
-    print('Finished Training')
-
-
-def test_classifier(classifier, dataloader):
-    classifier.eval()
-
-    predictions = []
-    total, correct = (0, 0)
-    for data in dataloader:
-        inputs, labels = data
-        outputs = classifier(inputs.float())
-
-        _, predicted = torch.max(outputs.data, 1)
-        predictions = predictions + predicted.tolist()
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
-
-    print('Accuracy of the network on the test data: {:.2f}%'.format(
-        100 * correct / total))
-    return predictions
+def translate(text, src, tgt):
+    response = requests.post(
+        'http://localhost:8080/translate', data={'text': text, 'src': src, 'tgt': tgt})
+    return response.text
 
 
 class Detector:
-    def __init__(self, model_path):
+    def __init__(self, model_paths={"nn": "./models/classifier_3k_v3_4000.pth",
+                                    "svm": "./models/svm.joblib",
+                                    "knn": "./models/knn.joblib",
+                                    "dt": "./models/dt.joblib"}):
         self.tokenizer = Tokenizer('conservative')
-        self.classifier = self.load_classifier(model_path)
+        self.smoothing = SmoothingFunction()
+        self.classifiers = {key: self.load_sklearn_classifier(
+            val) for key, val in model_paths.items() if key != "nn"}
+        self.classifiers["nn"] = self.load_nn_classifier(model_paths["nn"])
+        self.len_norm = self.load_sklearn_classifier(
+            "./models/len_norm.joblib")
+        self.src_norm = self.load_sklearn_classifier(
+            "./models/src_norm.joblib")
 
-    def load_classifier(self, model_path):
+    def load_sklearn_classifier(self, model_path):
+        try:
+            return load(model_path)
+        except FileNotFoundError:
+            return None
+
+    def load_nn_classifier(self, model_path):
         classifier = Classifier()
         classifier.load_state_dict(torch.load(model_path))
-        classifier.eval()
+        classifier.float()
         return classifier
+
+    def predict(self, text, src, algorithm):
+        other_langs = [l for l in LANG_POOL if l != src]
+        results = {lang: [text] for lang in other_langs}
+        data = []
+
+        last_back = text
+        for lang in other_langs:
+            for _ in range(0, 2):
+                translation = translate(last_back, src, lang)
+                last_back = translate(translation, lang, src)
+                results[lang].append(last_back)
+
+        for lang in LANG_POOL:
+            if lang != src:
+                for i in range(0, 2):
+                    ref_sent, _ = self.tokenizer.tokenize(results[lang][i])
+                    hypothesis, _ = self.tokenizer.tokenize(
+                        results[lang][i + 1])
+                    bleu = sentence_bleu(
+                        [ref_sent], hypothesis, smoothing_function=self.smoothing.method4, weights=(0.25, 0.25, 0.25, 0.25))
+                    data.append(bleu)
+            else:
+                data += [0.0, 0.0]
+
+        data.append(self.src_norm.transform(
+            np.array([LANG_POOL.index(src)]).reshape(-1, 1))[0][0])
+        data.append(self.len_norm.transform(
+            np.array([len(self.tokenizer.tokenize(text)[0])]).reshape(-1, 1))[0][0])
+
+        data = np.array(data).reshape(1, -1)
+
+        if algorithm != "nn":
+            prediction = self.classifiers[algorithm].predict_proba(data)
+            return list(prediction[0])
+        else:
+            # TODO Handle NN
+            return []
+
+
+if __name__ == "__main__":
+    dummy_detector = Detector()
+    text = "Podemos ver aquí que todo el proceso empezó demasiado tarde. En tercer lugar, para detener todas las negociaciones sobre cuestiones de migración con países que no facilitan ninguna garantía de respeto por los derechos humanos; Señor Presidente, señor Comisario, estos puntos son los puntos que quería hacer. Como ha señalado el Sr. Ford, el Sr. Spidla ha realizado una valiosa contribución al actual proceso de paz en Burundi, y espero que se realice una investigación plena en su sacrificio que haga honor a su muerte. Estas han sido sometidas a petición de la propia Comisión y se han referido al año financiero en 1999, la más reciente que era la información final. Después, debemos centrarnos en la reducción de las temperaturas, siempre que sigan el camino. Este fue un primer paso positivo."
+    print(dummy_detector.predict(text, 'es', 'knn'))
