@@ -1,7 +1,11 @@
 p {
   align-self: flex-start;
   text-align: justify;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.5em;
+}
+
+h2 {
+  text-align: center;
 }
 
 .app-container {
@@ -12,7 +16,7 @@ p {
   justify-content: space-evenly;
   margin-left: auto;
   margin-right: auto;
-  width: 60%;
+  width: 50%;
 }
 
 .md-intro {
@@ -24,6 +28,7 @@ p {
 .testing-container {
   display: flex;
   justify-content: space-evenly;
+  margin-bottom: 2em;
   width: 100%;
 }
 
@@ -46,9 +51,16 @@ p {
 
 .output-div {
   align-items: flex-start;
-  margin-top: 2em;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 8em;
+  width: 100%;
+}
+
+.loader {
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 
 .tables-container {
@@ -62,5 +74,9 @@ p {
 }
 
 .dash-table-container {
-  margin-bottom: 2rem;
+  margin-bottom: 2em;
+}
+
+.prediction-choice {
+  color: black;
 }

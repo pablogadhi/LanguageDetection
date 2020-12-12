@@ -73,15 +73,17 @@ class Detector:
 
         data = np.array(data).reshape(1, -1)
 
+        prediction = None
         if algorithm != "nn":
             prediction = self.classifiers[algorithm].predict_proba(data)
-            return list(prediction[0])
         else:
-            # TODO Handle NN
-            return []
+            tensor = torch.from_numpy(data)
+            prediction = self.classifiers["nn"](tensor.float()).tolist()
+
+        return list(prediction[0])
 
 
 if __name__ == "__main__":
     dummy_detector = Detector()
     text = "Podemos ver aquí que todo el proceso empezó demasiado tarde. En tercer lugar, para detener todas las negociaciones sobre cuestiones de migración con países que no facilitan ninguna garantía de respeto por los derechos humanos; Señor Presidente, señor Comisario, estos puntos son los puntos que quería hacer. Como ha señalado el Sr. Ford, el Sr. Spidla ha realizado una valiosa contribución al actual proceso de paz en Burundi, y espero que se realice una investigación plena en su sacrificio que haga honor a su muerte. Estas han sido sometidas a petición de la propia Comisión y se han referido al año financiero en 1999, la más reciente que era la información final. Después, debemos centrarnos en la reducción de las temperaturas, siempre que sigan el camino. Este fue un primer paso positivo."
-    print(dummy_detector.predict(text, 'es', 'knn'))
+    print(dummy_detector.predict(text, 'es', 'nn'))

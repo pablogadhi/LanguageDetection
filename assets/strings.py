@@ -15,6 +15,8 @@ CLASSIFIER_INTRO = """Dicha tabla se utilizó para alimentar 4 algoritmos de cla
                         sección de pruebas:"""
 DETECT_BTN_LABEL = 'Detectar'
 TRANSLATE_BTN_LABEL = 'Traducir'
-ES_PROBABILITY = 'Probabilidad de que el texto esté en español: {}'
-DE_PROBABILITY = 'Probabilidad de que el texto esté en alemán: {}'
+EN_PROBABILITY = 'Probabilidad de que el texto esté en inglés: {:.3f}'
+ES_PROBABILITY = 'Probabilidad de que el texto esté en español: {:.3f}'
+FR_PROBABILITY = 'Probabilidad de que el texto esté en francés: {:.3f}'
+DE_PROBABILITY = 'Probabilidad de que el texto esté en alemán: {:.3f}'
 FINAL_PRED = 'Predicción final: {}'

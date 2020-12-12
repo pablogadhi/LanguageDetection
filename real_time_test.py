@@ -8,10 +8,7 @@ from detector import Detector, translate
 from langdetect import detect as get_lang
 import assets.strings as strings
 
-CATEGORIES = {
-    0: "Español",
-    1: "Alemán"
-}
+CATEGORIES = ["En", "Es", "Fr", "De"]
 
 detector = Detector()
 bleu_table = pd.read_csv('data/final_bleu_scores.csv').round(3)
@@ -70,8 +67,10 @@ app.layout = html.Div(children=[
                 ),
                 html.Button(children=strings.TRANSLATE_BTN_LABEL, id='translate-btn',
                             n_clicks=0, className="input-btn"),
-                html.Div(id='translate-output-container', children="",
-                         className="output-container")
+                dcc.Loading(id='translate-loader', type='circle', children=[
+                    html.Div(id='translate-output-container', children="",
+                             className="output-container")
+                ], parent_className='loader')
             ], className="input-div"),
             html.Div(children=[
                 dcc.RadioItems(
@@ -91,22 +90,31 @@ app.layout = html.Div(children=[
                 ),
                 html.Button(children=strings.DETECT_BTN_LABEL, id='detect-btn',
                             n_clicks=0, className="input-btn"),
-                html.Div(id='detect-output-container', children="",
-                         className="output-container")
+                dcc.Loading(id='detect-loader', type='circle', children=[
+                    html.Div(id='detect-output-container', children="",
+                             className="output-container")
+                ], parent_className='loader')
             ], className="input-div")
         ], className="testing-container"
     ),
 ], className="app-container")
 
 
-def output_div(es_p, de_p, pred):
+def output_div(pred):
+    choice = CATEGORIES[pred.index(max(pred))]
+
     return html.Div(children=[
-        html.P(strings.ES_PROBABILITY.format(
-            es_p)),
-        html.P(strings.DE_PROBABILITY.format(
-            de_p)),
+        html.Div(strings.EN_PROBABILITY.format(
+            pred[0])),
+        html.Div(strings.ES_PROBABILITY.format(
+            pred[1])),
+        html.Div(strings.FR_PROBABILITY.format(
+            pred[2])),
+        html.Div(strings.DE_PROBABILITY.format(
+            pred[3])),
         html.Div(),
-        html.P(strings.FINAL_PRED.format(pred))
+        html.Div(strings.FINAL_PRED.format(choice),
+                 className="prediction-choice")
     ], className="output-div")
 
 
@@ -116,13 +124,11 @@ def output_div(es_p, de_p, pred):
     [State('detection-input', 'value'), State('algorithm-chooser', 'value')]
 )
 def update_output_div(n_clicks, text, algorithm):
-    if text != None and text != '':
+    if text is not None and text != '':
         src = get_lang(text)
-        detector.predict(text, src, algorithm)
-        return ""
-        # return output_div(pred[0], pred[1], CATEGORIES[pred.index(max(pred))])
-    else:
-        return ""
+        pred = detector.predict(text, src, algorithm)
+        return output_div(pred)
+    return ""
 
 
 @app.callback(
@@ -131,12 +137,10 @@ def update_output_div(n_clicks, text, algorithm):
     [State('translation-input', 'value'), State('lang-chooser', 'value')]
 )
 def update_translation_output(n_clicks, text, tgt):
-    # TODO separate sentences
-    if text != None and text != '':
+    if text is not None and text != '':
         src = get_lang(text)
         return translate(text, src, tgt)
-    else:
-        return ""
+    return ""
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-## Detección del lenguaje original en textos traducidos por máquina
+## Detección del idioma original en textos traducidos por máquina
 
 El siguiente trabajo propone un método para la identificación del idioma original de un texto
 traducido automáticamente a español, inglés, alemán o francés. Esto se hizo con la
