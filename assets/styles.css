@@ -16,7 +16,7 @@ h2 {
   justify-content: space-evenly;
   margin-left: auto;
   margin-right: auto;
-  width: 50%;
+  width: 60%;
 }
 
 .md-intro {
@@ -66,7 +66,7 @@ h2 {
 .tables-container {
   display: flex;
   flex-direction: column;
-  width: 80%;
+  width: 60%;
 }
 
 .table-title {
@@ -79,4 +79,5 @@ h2 {
 
 .prediction-choice {
   color: black;
+  font-weight: bold;
 }
