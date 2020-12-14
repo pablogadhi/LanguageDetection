@@ -10,9 +10,11 @@ TABLE_GEN_EXPL = """Con dicho motor de traducciones se generó una tabla con las
                     con las de la anterior. El siguiente diagrama representa todo el proceso:"""
 TABLE_EXAMPLE = 'La tabla resultante de este proceso se ve como la siguiente:'
 CLASSIFIER_INTRO = """Dicha tabla se utilizó para alimentar 4 algoritmos de clasificación: una Red Neuronal,
-                        una SVM, un árbol de decisiones y una algoritmo KNN. A continuación se puede 
-                        seleccionar cada uno de los algoritmos para ver sus resultados y utilizarlo en la
-                        sección de pruebas:"""
+                        una SVM, un árbol de decisiones y una algoritmo KNN. A continuación se muestran las precisiones
+                        obtenidas para cada uno de ellos:"""
+TEST_AREA = "Área de Pruebas:"
+TRANSLATE_DESCRIPTION = "Ingrese un texto que quiera traducir:"
+DETECT_DESCRIPTION = "Ingrese una traducción que quiera detectar:"
 DETECT_BTN_LABEL = 'Detectar'
 TRANSLATE_BTN_LABEL = 'Traducir'
 EN_PROBABILITY = 'Probabilidad de que el texto esté en inglés: {:.3f}'

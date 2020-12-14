@@ -11,8 +11,9 @@ import assets.strings as strings
 CATEGORIES = ["En", "Es", "Fr", "De"]
 
 detector = Detector()
-bleu_table = pd.read_csv('data/final_bleu_scores.csv').round(3)
-meteor_table = pd.read_csv('data/final_meteor_scores.csv').round(3)
+bleu_table = pd.read_csv('assets/final_bleu_scores.csv').round(3)
+meteor_table = pd.read_csv('assets/final_meteor_scores.csv').round(3)
+example_table = pd.read_csv('assets/gen_table_example.csv').round(3)
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -44,12 +45,17 @@ app.layout = html.Div(children=[
     ),
     html.P(strings.TABLE_GEN_EXPL),
     html.Img(src='assets/Back-Translations.png'),
-    html.P(strings.TABLE_EXAMPLE),
-    html.H6("<INSERTAR TABLA>"),
+    html.P(strings.TABLE_EXAMPLE, style={'marginTop': '2rem'}),
+    dash_table.DataTable(id='example_table', columns=[
+                         {"name": i, "id": i} for i in example_table.columns], data=example_table.to_dict('records'), style_cell={'textAlign': 'center', 'marginLeft': '1em', 'marginRight': '1em'}),
     html.P(strings.CLASSIFIER_INTRO),
+    html.Img(src='assets/scores.png'),
+    html.H2(strings.TEST_AREA, style={
+            'marginTop': '4em', 'fontWeight': 'bold'}),
     html.Div(
         children=[
             html.Div(children=[
+                html.P(strings.TRANSLATE_DESCRIPTION),
                 dcc.RadioItems(
                     id='lang-chooser',
                     options=[
@@ -73,6 +79,7 @@ app.layout = html.Div(children=[
                 ], parent_className='loader')
             ], className="input-div"),
             html.Div(children=[
+                html.P(strings.DETECT_DESCRIPTION),
                 dcc.RadioItems(
                     id='algorithm-chooser',
                     options=[
